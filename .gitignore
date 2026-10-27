@@ -1,0 +1,8 @@
+config.php
+storage/mail/*
+!storage/mail/.gitkeep
+uploads/*
+!uploads/.htaccess
+!uploads/.gitkeep
+.DS_Store
+*.sqlite
