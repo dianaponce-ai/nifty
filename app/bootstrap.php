@@ -202,7 +202,7 @@ class DbSessionHandler implements SessionHandlerInterface {
 
 function start_session(): void {
     if (session_status() === PHP_SESSION_ACTIVE) return;
-    if (ON_VERCEL || env_var('SESSION_DB') === '1') {
+    if (ON_VERCEL || pg_url() !== '' || env_var('SESSION_DB') === '1') {
         try { session_set_save_handler(new DbSessionHandler(), true); } catch (Throwable $e) {}
         ini_set('session.gc_maxlifetime', '86400');
     }
