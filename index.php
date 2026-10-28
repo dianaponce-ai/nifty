@@ -55,6 +55,7 @@ $routes = [
     ['POST', '#^/plan-de-pauta$#', 'ad_plan_submit'],
     ['GET',  '#^/plan-de-pauta/resultado/([a-f0-9]{20,40})$#', 'page_ad_plan_result'],
 
+    ['GET',  '#^/media/(\d+)-[a-z0-9.-]+$#', 'serve_media'],
     ['GET',  '#^/robots\.txt$#', 'robots_txt'],
     ['GET',  '#^/llms\.txt$#', 'llms_txt'],
     ['GET',  '#^/sitemap\.xml$#', 'sitemap_xml'],

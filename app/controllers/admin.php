@@ -171,14 +171,26 @@ function upload_image(string $field, ?int $index = null): ?string {
     $tmp = $index === null ? $f['tmp_name'] : ($f['tmp_name'][$index] ?? '');
     $err = $index === null ? $f['error'] : ($f['error'][$index] ?? 4);
     $size = $index === null ? $f['size'] : ($f['size'][$index] ?? 0);
-    if ($err !== UPLOAD_ERR_OK || !is_uploaded_file($tmp) || $size > 8 * 1024 * 1024) return null;
-    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($tmp);
+    // Vercel limita el cuerpo de cada request a ~4,5 MB
+    if ($err !== UPLOAD_ERR_OK || !is_uploaded_file($tmp) || $size > 4 * 1024 * 1024) return null;
+    $info = @getimagesize($tmp);
+    $mime = $info['mime'] ?? (class_exists('finfo') ? (new finfo(FILEINFO_MIME_TYPE))->file($tmp) : '');
     $ext = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif', 'image/avif' => 'avif'][$mime] ?? null;
     if (!$ext) return null;
-    $dir = 'uploads/casos/' . date('Y/m');
-    if (!is_dir(ROOT . '/' . $dir)) mkdir(ROOT . '/' . $dir, 0775, true);
-    $file = $dir . '/' . substr(slugify(pathinfo($name, PATHINFO_FILENAME)), 0, 40) . '-' . token(6) . '.' . $ext;
-    return move_uploaded_file($tmp, ROOT . '/' . $file) ? $file : null;
+    // Las imágenes se guardan en la base (tabla media) y se sirven en /media/{id}-{nombre}
+    $slug = substr(slugify(pathinfo($name, PATHINFO_FILENAME)), 0, 40) . '.' . $ext;
+    $id = insert('media', ['name' => $slug, 'mime' => $mime, 'size' => (int) $size, 'data' => file_get_contents($tmp), 'created_at' => now()]);
+    return 'media/' . $id . '-' . $slug;
+}
+
+/** Sirve una imagen guardada en la tabla media, con caché larga. */
+function serve_media(string $id): void {
+    $m = row('SELECT mime, data, created_at FROM media WHERE id = ?', [(int) $id]);
+    if (!$m) not_found();
+    header('Content-Type: ' . $m['mime']);
+    header('Cache-Control: public, max-age=31536000, immutable');
+    header('Content-Length: ' . strlen($m['data']));
+    echo $m['data'];
 }
 
 function admin_case_edit(?string $id = null): void {

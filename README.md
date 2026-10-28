@@ -1,6 +1,6 @@
 # Nifty Agency — sitio + CRM (Fase 1)
 
-Sitio nuevo de nifty-agency.com en PHP + MySQL, sin WordPress. Pensado para Hostinger con deploy desde GitHub (igual que el sitio de Eunoia Campus).
+Sitio nuevo de nifty-agency.com en PHP + MySQL, sin WordPress. Se publica en **Vercel** (runtime `vercel-php`) con la base MySQL en Hostinger. También funciona en un hosting PHP tradicional con `config.php`.
 
 ## Qué incluye esta fase
 
@@ -22,7 +22,21 @@ Sitio nuevo de nifty-agency.com en PHP + MySQL, sin WordPress. Pensado para Host
 - Casos de éxito: alta/edición, fotos (principal, destacada y galería), reseñas vinculadas y **generación de títulos, tarjetas de datos y bloques con IA** a partir de los hechos.
 - Reseñas, Ajustes (correos del equipo, WhatsApp, agenda, videos, tipo de cambio, GTM) y Usuarios.
 
-## Instalación en Hostinger
+## Publicación en Vercel
+
+1. **Base en Hostinger:** hPanel → Bases de datos → MySQL: crear base y usuario. Después, en **MySQL remoto**, agregar acceso desde cualquier host (`%`) para esa base. Anotar el host remoto (aparece en esa pantalla).
+2. **Vercel:** importar el repo `dianaponce-ai/nifty` (framework: Other, sin comando de build).
+3. **Variables de entorno** (Settings → Environment Variables):
+   - `BASE_URL` (ej. `https://nuevo.nifty-agency.com`)
+   - `DB_HOST`, `DB_PORT` (3306), `DB_NAME`, `DB_USER`, `DB_PASS`
+   - `SMTP_USER`, `SMTP_PASS` (contraseña de aplicación de Google Workspace), opcional `SMTP_FROM`, `SMTP_FROM_NAME`
+   - `APP_KEY` (cadena larga aleatoria), opcional `ANTHROPIC_API_KEY`
+4. Deploy y entrar a `/admin/setup`.
+5. Dominio: en Vercel → Domains agregar `nuevo.nifty-agency.com` (CNAME a `cname.vercel-dns.com`) y, cuando esté aprobado, `nifty-agency.com`.
+
+En Vercel las sesiones y las fotos subidas desde el admin se guardan en la base (tablas `sessions` y `media`); las fotos tienen un límite de 4 MB cada una.
+
+## Instalación en hosting PHP tradicional (alternativa)
 
 1. Crear la base MySQL en hPanel (anotar host, base, usuario y clave).
 2. Conectar el repo de GitHub al dominio (Git → deploy en `public_html`).

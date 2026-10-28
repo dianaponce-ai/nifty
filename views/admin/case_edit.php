@@ -106,7 +106,7 @@ $linked = array_map('intval', array_column(array_filter($reviews, fn($r) => (int
           <?php endforeach; ?>
         </div>
         <input type="file" name="gallery_new[]" accept="image/*" multiple>
-        <p class="muted small">JPG, PNG o WebP de hasta 8 MB.</p>
+        <p class="muted small">JPG, PNG o WebP de hasta 4 MB cada una (subí pocas por vez).</p>
       </section>
 
       <section class="card">

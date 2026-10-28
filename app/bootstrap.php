@@ -8,12 +8,39 @@ declare(strict_types=1);
 define('ROOT', dirname(__DIR__));
 define('APP', __DIR__);
 
+define('ON_VERCEL', (bool) getenv('VERCEL'));
+
+/**
+ * Configuración: config.php (hosting tradicional) o variables de entorno (Vercel).
+ * Variables: BASE_URL, DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS, SMTP_HOST, SMTP_PORT,
+ * SMTP_SECURE, SMTP_USER, SMTP_PASS, SMTP_FROM, SMTP_FROM_NAME, ANTHROPIC_API_KEY,
+ * ANTHROPIC_MODEL, APP_KEY, APP_DEBUG
+ */
 $cfgFile = ROOT . '/config.php';
-if (!is_file($cfgFile)) {
+if (is_file($cfgFile)) {
+    $GLOBALS['CFG'] = require $cfgFile;
+} elseif (getenv('DB_HOST') || getenv('DB_DSN')) {
+    $env = fn(string $k, $d = '') => ($v = getenv($k)) !== false && $v !== '' ? $v : $d;
+    $GLOBALS['CFG'] = [
+        'base_url' => $env('BASE_URL', 'https://' . $env('VERCEL_PROJECT_PRODUCTION_URL', $env('VERCEL_URL', 'localhost'))),
+        'db' => [
+            'dsn'  => $env('DB_DSN', 'mysql:host=' . $env('DB_HOST') . ';port=' . $env('DB_PORT', '3306') . ';dbname=' . $env('DB_NAME') . ';charset=utf8mb4'),
+            'user' => $env('DB_USER'),
+            'pass' => $env('DB_PASS'),
+        ],
+        'smtp' => [
+            'host' => $env('SMTP_HOST', 'smtp.gmail.com'), 'port' => (int) $env('SMTP_PORT', '587'), 'secure' => $env('SMTP_SECURE', 'tls'),
+            'user' => $env('SMTP_USER'), 'pass' => $env('SMTP_PASS'),
+            'from' => $env('SMTP_FROM', $env('SMTP_USER')), 'from_name' => $env('SMTP_FROM_NAME', 'Nifty Agency'),
+        ],
+        'anthropic' => ['api_key' => $env('ANTHROPIC_API_KEY'), 'model' => $env('ANTHROPIC_MODEL', 'claude-sonnet-5-5')],
+        'app_key' => $env('APP_KEY', 'cambiar'),
+        'debug' => $env('APP_DEBUG') === '1',
+    ];
+} else {
     http_response_code(500);
-    exit('Falta config.php — copiá config.sample.php como config.php y completalo.');
+    exit('Falta la configuración: creá config.php (ver config.sample.php) o cargá las variables de entorno.');
 }
-$GLOBALS['CFG'] = require $cfgFile;
 
 function cfg(string $key, $default = null) {
     $v = $GLOBALS['CFG'];
@@ -104,8 +131,26 @@ function team_emails(): array {
 /* ------------------------------------------------------------------ */
 /* Sesión, CSRF y autenticación                                        */
 /* ------------------------------------------------------------------ */
+/** Sesiones guardadas en la tabla `sessions` (necesario en Vercel: no hay disco compartido). */
+class DbSessionHandler implements SessionHandlerInterface {
+    public function open($path, $name): bool { return true; }
+    public function close(): bool { return true; }
+    public function read($id): string|false { return (string) (val('SELECT data FROM sessions WHERE id = ?', [$id]) ?: ''); }
+    public function write($id, $data): bool {
+        q('DELETE FROM sessions WHERE id = ?', [$id]);
+        q('INSERT INTO sessions (id, data, updated_at) VALUES (?, ?, ?)', [$id, $data, time()]);
+        return true;
+    }
+    public function destroy($id): bool { q('DELETE FROM sessions WHERE id = ?', [$id]); return true; }
+    public function gc($max): int|false { return q('DELETE FROM sessions WHERE updated_at < ?', [time() - $max])->rowCount(); }
+}
+
 function start_session(): void {
     if (session_status() === PHP_SESSION_ACTIVE) return;
+    if (ON_VERCEL || getenv('SESSION_DB') === '1') {
+        try { session_set_save_handler(new DbSessionHandler(), true); } catch (Throwable $e) {}
+        ini_set('session.gc_maxlifetime', '86400');
+    }
     session_name('nifty_sid');
     session_set_cookie_params([
         'lifetime' => 0, 'path' => '/', 'httponly' => true, 'samesite' => 'Lax',

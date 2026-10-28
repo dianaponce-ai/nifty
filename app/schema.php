@@ -107,6 +107,21 @@ function schema_statements(string $driver): array {
             created_at DATETIME NOT NULL
         )$END",
 
+        "CREATE TABLE IF NOT EXISTS sessions (
+            id VARCHAR(128) NOT NULL PRIMARY KEY,
+            data TEXT NOT NULL,
+            updated_at $INT NOT NULL
+        )$END",
+
+        "CREATE TABLE IF NOT EXISTS media (
+            id $PK,
+            name VARCHAR(160) NOT NULL,
+            mime VARCHAR(60) NOT NULL,
+            size $INT NOT NULL DEFAULT 0,
+            data " . ($my ? 'LONGBLOB' : 'BLOB') . " NOT NULL,
+            created_at DATETIME NOT NULL
+        )$END",
+
         "CREATE TABLE IF NOT EXISTS mail_log (
             id $PK,
             lead_id $INT NULL,

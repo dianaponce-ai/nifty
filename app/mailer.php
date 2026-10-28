@@ -20,11 +20,11 @@ function send_mail($to, string $subject, string $html, array $opt = []): bool {
 
     if ($smtpPass === '' || $smtpPass === 'CONTRASEÑA_DE_APLICACION') {
         // Modo prueba: guardar el correo como archivo
-        $dir = ROOT . '/storage/mail';
-        if (!is_dir($dir)) mkdir($dir, 0775, true);
+        $dir = ON_VERCEL ? sys_get_temp_dir() . '/nifty-mail' : ROOT . '/storage/mail';
+        if (!is_dir($dir)) @mkdir($dir, 0775, true);
         $file = $dir . '/' . date('Ymd-His') . '-' . substr(slugify($subject), 0, 50) . '-' . token(4) . '.html';
         $head = '<!-- To: ' . implode(', ', $to) . ' | Cc: ' . implode(', ', (array) ($opt['cc'] ?? [])) . ' | Subject: ' . $subject . ' -->';
-        $ok = (bool) file_put_contents($file, $head . "\n" . $html);
+        $ok = (bool) @file_put_contents($file, $head . "\n" . $html);
         $err = $ok ? 'modo prueba (sin SMTP)' : 'no se pudo escribir storage/mail';
     } else {
         $m = new PHPMailer(true);
