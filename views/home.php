@@ -63,7 +63,7 @@ $channels = [['target', 'Google Ads'], ['megaphone', 'Meta Ads'], ['linkedin', '
         <div class="stage" aria-label="Ilustración: el equipo de Nifty trabajando una marca en todos sus frentes">
           <div class="stage-ring" aria-hidden="true"></div><div class="stage-ring r2" aria-hidden="true"></div>
           <div class="stage-photo">
-            <img src="<?= e($IMG['dsc09175']) ?>" alt="Equipo de Nifty Agency en una reunión de estrategia" fetchpriority="high">
+            <img src="https://nifty-agency.com/wp-content/uploads/2025/10/8.png" alt="Equipo de Nifty Agency" fetchpriority="high">
             <div class="stage-tag"><span class="live-dot"></span>// el equipo de Nifty, en plena estrategia</div>
           </div>
           <div class="fc fc-ads"><div class="fc-head"><?= icon('target', 14) ?>Performance<span class="fc-pill">ACTIVA</span></div><div class="fc-big"><span class="count" data-to="6.4" data-dec="1">0</span>x<small>▲</small></div><div class="fc-sub">ROAS · Google + Meta Ads</div></div>
