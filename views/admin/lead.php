@@ -2,7 +2,7 @@
 $types = lead_types(); $sts = lead_statuses();
 $title = ($lead['company'] ?: $lead['name'] ?: 'Lead') . ' · ' . ($types[$lead['type']] ?? '');
 $resultUrl = match ($lead['type']) { 'diagnostico_ia' => '/diagnostico-ia/resultado/' . $lead['token'], 'plan_pauta' => '/plan-de-pauta/resultado/' . $lead['token'], default => null };
-$actions = '<a class="abtn ghost" href="/admin/leads">← Leads</a>' . ($resultUrl ? '<a class="abtn" href="' . e($resultUrl) . '" target="_blank">Ver lo que recibió el cliente ↗</a>' : '');
+$actions = '<a class="abtn ghost" href="/admin/leads">← Leads</a><a class="abtn primary" href="/admin/propuestas/nueva?lead=' . (int) $lead['id'] . '">+ Crear propuesta</a>' . ($resultUrl ? '<a class="abtn" href="' . e($resultUrl) . '" target="_blank">Ver lo que recibió el cliente ↗</a>' : '');
 $labels = ['respuestas' => 'Respuestas', 'presupuesto' => 'Presupuesto', 'objetivo' => 'Objetivo', 'situacion' => 'Situación', 'mensaje' => 'Mensaje', 'producto' => 'Producto / interés',
     'tamano' => 'Tamaño', 'hosting' => 'Hosting', 'ciudad' => 'Ciudad', 'negocio' => 'Negocio', 'rubro' => 'Rubro', 'web' => 'Web', 'modelo' => 'Modelo', 'publico' => 'Público',
     'zona' => 'Zona', 'ciclo' => 'Ciclo de venta', 'moneda' => 'Moneda', 'ticket' => 'Ticket promedio', 'medicion' => 'Medición', 'crm' => 'CRM', 'video' => 'Video',

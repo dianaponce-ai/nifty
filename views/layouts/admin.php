@@ -20,8 +20,8 @@ $fl = flash();
     <p class="adm-sec">CRM</p>
     <a href="/admin"<?= $on('/admin') ?>><?= icon('chart', 18) ?>Dashboard</a>
     <a href="/admin/leads"<?= $on('/admin/leads') ?>><?= icon('users', 18) ?>Leads<?php if ($newLeads): ?><em class="badge"><?= $newLeads ?></em><?php endif; ?></a>
-    <span class="adm-soon"><?= icon('receipt', 18) ?>Propuestas <small>Fase 2</small></span>
-    <span class="adm-soon"><?= icon('briefcase', 18) ?>Clientes <small>Fase 2</small></span>
+    <a href="/admin/propuestas"<?= $on('/admin/propuestas') ?>><?= icon('receipt', 18) ?>Propuestas</a>
+    <a href="/admin/clientes"<?= $on('/admin/clientes') ?>><?= icon('briefcase', 18) ?>Clientes</a>
     <span class="adm-soon"><?= icon('chat', 18) ?>Tickets <small>Fase 3</small></span>
     <p class="adm-sec">Sitio</p>
     <a href="/admin/casos"<?= $on('/admin/casos') ?>><?= icon('star', 18) ?>Casos de éxito</a>

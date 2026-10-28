@@ -133,6 +133,79 @@ function schema_statements(string $driver): array {
             error TEXT NULL,
             created_at " . ($pg ? 'TIMESTAMP' : 'DATETIME') . " NOT NULL
         )$END",
+
+        // ---------------- Propuestas comerciales ----------------
+        "CREATE TABLE IF NOT EXISTS proposals (
+            id $PK,
+            token VARCHAR(40) NOT NULL UNIQUE,
+            number VARCHAR(20) NOT NULL DEFAULT '',
+            status VARCHAR(20) NOT NULL DEFAULT 'borrador',
+            client_name VARCHAR(200) NOT NULL DEFAULT '',
+            client_tagline VARCHAR(255) NOT NULL DEFAULT '',
+            contact_name VARCHAR(160) NOT NULL DEFAULT '',
+            contact_email VARCHAR(190) NOT NULL DEFAULT '',
+            contact_phone VARCHAR(60) NOT NULL DEFAULT '',
+            website VARCHAR(255) NOT NULL DEFAULT '',
+            eyebrow VARCHAR(160) NOT NULL DEFAULT '',
+            title VARCHAR(255) NOT NULL DEFAULT '',
+            subtitle TEXT NULL,
+            blocks $LONG NULL,
+            currency VARCHAR(5) NOT NULL DEFAULT 'ARS',
+            items $LONG NULL,
+            pay_options $LONG NULL,
+            terms TEXT NULL,
+            valid_until DATE NULL,
+            lead_id $INT NULL,
+            client_id $INT NULL,
+            created_by $INT NULL,
+            legacy_url VARCHAR(255) NOT NULL DEFAULT '',
+            sent_at " . ($pg ? 'TIMESTAMP' : 'DATETIME') . " NULL,
+            viewed_at " . ($pg ? 'TIMESTAMP' : 'DATETIME') . " NULL,
+            views $INT NOT NULL DEFAULT 0,
+            decided_at " . ($pg ? 'TIMESTAMP' : 'DATETIME') . " NULL,
+            approver_name VARCHAR(160) NOT NULL DEFAULT '',
+            approver_doc VARCHAR(60) NOT NULL DEFAULT '',
+            pay_choice VARCHAR(160) NOT NULL DEFAULT '',
+            signature $LONG NULL,
+            decision_note TEXT NULL,
+            decision_ip VARCHAR(64) NOT NULL DEFAULT '',
+            created_at " . ($pg ? 'TIMESTAMP' : 'DATETIME') . " NOT NULL,
+            updated_at " . ($pg ? 'TIMESTAMP' : 'DATETIME') . " NOT NULL
+        )$END",
+        "$IDX idx_prop_status ON proposals (status)",
+
+        "CREATE TABLE IF NOT EXISTS proposal_events (
+            id $PK,
+            proposal_id $INT NOT NULL,
+            user_id $INT NULL,
+            kind VARCHAR(30) NOT NULL,
+            body TEXT NULL,
+            created_at " . ($pg ? 'TIMESTAMP' : 'DATETIME') . " NOT NULL
+        )$END",
+        "$IDX idx_propev ON proposal_events (proposal_id)",
+
+        // ---------------- Clientes ----------------
+        "CREATE TABLE IF NOT EXISTS clients (
+            id $PK,
+            name VARCHAR(200) NOT NULL,
+            legal_name VARCHAR(200) NOT NULL DEFAULT '',
+            tax_id VARCHAR(40) NOT NULL DEFAULT '',
+            industry VARCHAR(120) NOT NULL DEFAULT '',
+            website VARCHAR(255) NOT NULL DEFAULT '',
+            contact_name VARCHAR(160) NOT NULL DEFAULT '',
+            contact_email VARCHAR(190) NOT NULL DEFAULT '',
+            contact_phone VARCHAR(60) NOT NULL DEFAULT '',
+            status VARCHAR(20) NOT NULL DEFAULT 'activo',
+            fee_amount " . ($my ? 'DECIMAL(14,2)' : 'NUMERIC(14,2)') . " NULL,
+            fee_currency VARCHAR(5) NOT NULL DEFAULT 'ARS',
+            fee_day $INT NULL,
+            services TEXT NULL,
+            ecosystem $LONG NULL,
+            notes TEXT NULL,
+            proposal_id $INT NULL,
+            created_at " . ($pg ? 'TIMESTAMP' : 'DATETIME') . " NOT NULL,
+            updated_at " . ($pg ? 'TIMESTAMP' : 'DATETIME') . " NOT NULL
+        )$END",
     ];
 }
 

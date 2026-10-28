@@ -15,6 +15,7 @@ require __DIR__ . '/app/bootstrap.php';
 require APP . '/controllers/public.php';
 require APP . '/controllers/tools.php';
 require APP . '/controllers/admin.php';
+require APP . '/controllers/proposals.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $path = '/' . trim(rawurldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/'), '/');
@@ -63,6 +64,8 @@ $routes = [
     ['GET',  '#^/plan-de-pauta/resultado/([a-f0-9]{20,40})$#', 'page_ad_plan_result'],
 
     ['GET',  '#^/media/(\d+)-[a-z0-9.-]+$#', 'serve_media'],
+    ['GET',  '#^/p/([a-f0-9]{20,40})$#', 'page_proposal'],
+    ['POST', '#^/p/([a-f0-9]{20,40})/decidir$#', 'proposal_decide'],
     ['GET',  '#^/robots\.txt$#', 'robots_txt'],
     ['GET',  '#^/llms\.txt$#', 'llms_txt'],
     ['GET',  '#^/sitemap\.xml$#', 'sitemap_xml'],
@@ -80,6 +83,14 @@ $routes = [
     ['POST', '#^/admin/casos/(\d+)/eliminar$#', 'admin_case_delete'],
     ['POST', '#^/admin/casos/generar$#', 'admin_case_generate'],
     ['GET|POST', '#^/admin/resenas$#', 'admin_reviews'],
+    ['GET',  '#^/admin/propuestas$#', 'admin_proposals'],
+    ['POST', '#^/admin/propuestas/importar$#', 'admin_proposals_import'],
+    ['GET|POST', '#^/admin/propuestas/nueva$#', 'admin_proposal_edit'],
+    ['GET|POST', '#^/admin/propuestas/(\d+)$#', 'admin_proposal_edit'],
+    ['POST', '#^/admin/propuestas/(\d+)/accion$#', 'admin_proposal_action'],
+    ['GET',  '#^/admin/clientes$#', 'admin_clients'],
+    ['GET|POST', '#^/admin/clientes/nuevo$#', 'admin_client_edit'],
+    ['GET|POST', '#^/admin/clientes/(\d+)$#', 'admin_client_edit'],
     ['GET|POST', '#^/admin/ajustes$#', 'admin_settings'],
     ['GET|POST', '#^/admin/usuarios$#', 'admin_users'],
 ];

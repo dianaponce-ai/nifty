@@ -91,7 +91,7 @@ $gtm = setting('gtm_id');
 
 <footer class="site-footer">
   <div class="wrap">
-    <?php if (!in_array($path, ['/', '/contacto'], true)): ?>
+    <?php if (!in_array($path, ['/', '/contacto'], true) && !str_starts_with($path, '/p/')): ?>
     <div class="footer-cta">
       <div>
         <p class="eyebrow-mono">// ¿planeando tu próximo proyecto?</p>
