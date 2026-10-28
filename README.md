@@ -31,7 +31,7 @@ Sitio nuevo de nifty-agency.com en PHP + MySQL, sin WordPress. Se publica en **V
    - `DB_HOST`, `DB_PORT` (3306), `DB_NAME`, `DB_USER`, `DB_PASS`
    - `SMTP_USER`, `SMTP_PASS` (contraseña de aplicación de Google Workspace), opcional `SMTP_FROM`, `SMTP_FROM_NAME`
    - `APP_KEY` (cadena larga aleatoria), opcional `ANTHROPIC_API_KEY`
-4. Deploy y entrar a `/admin/setup`.
+4. Deploy y entrar a `/admin/setup`. (Sin variables de base, el sitio público igual se ve en **modo vista previa**: formularios y admin muestran un aviso hasta conectar la base.)
 5. Dominio: en Vercel → Domains agregar `nuevo.nifty-agency.com` (CNAME a `cname.vercel-dns.com`) y, cuando esté aprobado, `nifty-agency.com`.
 
 En Vercel las sesiones y las fotos subidas desde el admin se guardan en la base (tablas `sessions` y `media`); las fotos tienen un límite de 4 MB cada una.

@@ -35,6 +35,13 @@ $legacy = [
 ];
 if (isset($legacy[$path])) redirect($legacy[$path], 301);
 
+// Vista previa sin base de datos: el sitio se ve, pero no se guardan formularios ni se entra al admin
+if (PREVIEW_MODE && ($method === 'POST' || str_starts_with($path, '/admin'))) {
+    http_response_code(503);
+    view('preview_notice', ['isAdmin' => str_starts_with($path, '/admin'), 'meta' => ['title' => 'Sitio en configuración — Nifty Agency', 'robots' => 'noindex']]);
+    exit;
+}
+
 $routes = [
     ['GET',  '#^/$#', 'page_home'],
     ['GET',  '#^/servicios$#', 'page_services'],

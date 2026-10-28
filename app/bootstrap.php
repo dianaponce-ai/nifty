@@ -44,10 +44,20 @@ if (is_file($cfgFile)) {
         'debug' => $env('APP_DEBUG') === '1',
     ];
 } else {
-    http_response_code(500);
-    $seen = array_values(array_filter(['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASS', 'BASE_URL', 'SMTP_USER', 'VERCEL'], fn($k) => env_var($k) !== ''));
-    exit('Falta la configuración: creá config.php (ver config.sample.php) o cargá las variables de entorno. Variables detectadas: ' . ($seen ? implode(', ', $seen) : 'ninguna') . '.');
+    // MODO VISTA PREVIA: sin base configurada, el sitio público se ve igual usando una base
+    // temporal con el contenido inicial. Formularios y admin quedan bloqueados (ver index.php).
+    $proto = (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https' || ($_SERVER['HTTPS'] ?? '') === 'on') ? 'https' : 'http';
+    $GLOBALS['CFG'] = [
+        'preview' => true,
+        'base_url' => env_var('BASE_URL') ?: $proto . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'),
+        'db' => ['dsn' => 'sqlite:' . sys_get_temp_dir() . '/nifty-preview.sqlite', 'user' => null, 'pass' => null],
+        'smtp' => ['pass' => ''],
+        'anthropic' => ['api_key' => ''],
+        'app_key' => 'preview',
+        'debug' => false,
+    ];
 }
+define('PREVIEW_MODE', (bool) ($GLOBALS['CFG']['preview'] ?? false));
 
 function cfg(string $key, $default = null) {
     $v = $GLOBALS['CFG'];
@@ -81,6 +91,12 @@ function db(): PDO {
     ]);
     if ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
         $pdo->exec('PRAGMA foreign_keys = ON');
+    }
+    if (PREVIEW_MODE) {
+        // Base temporal: se crea y se llena con los casos y reseñas iniciales la primera vez
+        migrate();
+        require_once APP . '/seed.php';
+        seed_content();
     }
     return $pdo;
 }
