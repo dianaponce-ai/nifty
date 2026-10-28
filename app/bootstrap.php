@@ -14,6 +14,28 @@ function env_var(string $k): string {
     if ($v === false || $v === '') $v = $_ENV[$k] ?? $_SERVER[$k] ?? '';
     return trim((string) $v);
 }
+/**
+ * URL de Postgres que crea Vercel al conectar una base Neon (Storage).
+ * Se prefiere la conexión directa (sin pooler) porque PDO usa sentencias preparadas.
+ */
+function pg_url(): string {
+    foreach (['DATABASE_URL_UNPOOLED', 'POSTGRES_URL_NON_POOLING', 'DATABASE_URL', 'POSTGRES_URL'] as $k) {
+        $v = env_var($k);
+        if ($v !== '' && preg_match('~^postgres(ql)?://~', $v)) return $v;
+    }
+    return '';
+}
+/** Convierte postgres://usuario:clave@host:puerto/base?sslmode=require en DSN de PDO. */
+function pg_dsn(string $url): ?array {
+    if ($url === '') return null;
+    $p = parse_url($url);
+    if (!$p || empty($p['host'])) return null;
+    parse_str($p['query'] ?? '', $qs);
+    $dsn = 'pgsql:host=' . $p['host'] . ';port=' . ($p['port'] ?? 5432) . ';dbname=' . ltrim($p['path'] ?? '/postgres', '/')
+        . ';sslmode=' . ($qs['sslmode'] ?? 'require');
+    return ['dsn' => $dsn, 'user' => rawurldecode($p['user'] ?? ''), 'pass' => rawurldecode($p['pass'] ?? '')];
+}
+
 define('ON_VERCEL', env_var('VERCEL') !== '' || env_var('VERCEL_ENV') !== '');
 
 /**
@@ -25,11 +47,12 @@ define('ON_VERCEL', env_var('VERCEL') !== '' || env_var('VERCEL_ENV') !== '');
 $cfgFile = ROOT . '/config.php';
 if (is_file($cfgFile)) {
     $GLOBALS['CFG'] = require $cfgFile;
-} elseif (env_var('DB_HOST') !== '' || env_var('DB_DSN') !== '') {
+} elseif (pg_url() !== '' || env_var('DB_HOST') !== '' || env_var('DB_DSN') !== '') {
     $env = fn(string $k, $d = '') => ($v = env_var($k)) !== '' ? $v : $d;
+    $pgDb = pg_dsn(pg_url());
     $GLOBALS['CFG'] = [
         'base_url' => $env('BASE_URL', 'https://' . $env('VERCEL_PROJECT_PRODUCTION_URL', $env('VERCEL_URL', 'localhost'))),
-        'db' => [
+        'db' => $pgDb ?: [
             'dsn'  => $env('DB_DSN', 'mysql:host=' . $env('DB_HOST') . ';port=' . $env('DB_PORT', '3306') . ';dbname=' . $env('DB_NAME') . ';charset=utf8mb4'),
             'user' => $env('DB_USER'),
             'pass' => $env('DB_PASS'),
@@ -87,7 +110,7 @@ function db(): PDO {
     $pdo = new PDO(cfg('db.dsn'), cfg('db.user'), cfg('db.pass'), [
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES   => false,
+        PDO::ATTR_EMULATE_PREPARES   => str_starts_with((string) cfg('db.dsn'), 'pgsql:'),
     ]);
     if ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
         $pdo->exec('PRAGMA foreign_keys = ON');

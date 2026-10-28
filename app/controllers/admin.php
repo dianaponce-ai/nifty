@@ -86,7 +86,7 @@ function leads_filter_sql(): array {
     $t = (string) ($_GET['tipo'] ?? ''); $s = (string) ($_GET['estado'] ?? ''); $qq = trim((string) ($_GET['q'] ?? ''));
     if (isset(lead_types()[$t])) { $w[] = 'type = ?'; $p[] = $t; }
     if (isset(lead_statuses()[$s])) { $w[] = 'status = ?'; $p[] = $s; }
-    if ($qq !== '') { $w[] = '(name LIKE ? OR company LIKE ? OR email LIKE ? OR phone LIKE ? OR website LIKE ?)'; array_push($p, ...array_fill(0, 5, '%' . $qq . '%')); }
+    if ($qq !== '') { $w[] = '(LOWER(name) LIKE ? OR LOWER(company) LIKE ? OR LOWER(email) LIKE ? OR LOWER(phone) LIKE ? OR LOWER(website) LIKE ?)'; array_push($p, ...array_fill(0, 5, '%' . mb_strtolower($qq) . '%')); }
     return [implode(' AND ', $w), $p];
 }
 
@@ -179,7 +179,7 @@ function upload_image(string $field, ?int $index = null): ?string {
     if (!$ext) return null;
     // Las imágenes se guardan en la base (tabla media) y se sirven en /media/{id}-{nombre}
     $slug = substr(slugify(pathinfo($name, PATHINFO_FILENAME)), 0, 40) . '.' . $ext;
-    $id = insert('media', ['name' => $slug, 'mime' => $mime, 'size' => (int) $size, 'data' => file_get_contents($tmp), 'created_at' => now()]);
+    $id = insert('media', ['name' => $slug, 'mime' => $mime, 'size' => (int) $size, 'data' => base64_encode((string) file_get_contents($tmp)), 'created_at' => now()]);
     return 'media/' . $id . '-' . $slug;
 }
 
@@ -187,10 +187,11 @@ function upload_image(string $field, ?int $index = null): ?string {
 function serve_media(string $id): void {
     $m = row('SELECT mime, data, created_at FROM media WHERE id = ?', [(int) $id]);
     if (!$m) not_found();
+    $bin = base64_decode((string) $m['data']);
     header('Content-Type: ' . $m['mime']);
     header('Cache-Control: public, max-age=31536000, immutable');
-    header('Content-Length: ' . strlen($m['data']));
-    echo $m['data'];
+    header('Content-Length: ' . strlen($bin));
+    echo $bin;
 }
 
 function admin_case_edit(?string $id = null): void {

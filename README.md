@@ -24,17 +24,16 @@ Sitio nuevo de nifty-agency.com en PHP + MySQL, sin WordPress. Se publica en **V
 
 ## Publicación en Vercel
 
-1. **Base en Hostinger:** hPanel → Bases de datos → MySQL: crear base y usuario. Después, en **MySQL remoto**, agregar acceso desde cualquier host (`%`) para esa base. Anotar el host remoto (aparece en esa pantalla).
-2. **Vercel:** importar el repo `dianaponce-ai/nifty` (framework: Other, sin comando de build).
-3. **Variables de entorno** (Settings → Environment Variables):
-   - `BASE_URL` (ej. `https://nuevo.nifty-agency.com`)
-   - `DB_HOST`, `DB_PORT` (3306), `DB_NAME`, `DB_USER`, `DB_PASS`
+1. **Base de datos (Vercel Storage):** en el proyecto → pestaña **Storage** → **Create Database** → **Neon (Serverless Postgres)**, plan gratis, región São Paulo si está disponible. Conectala al proyecto `nifty`: Vercel agrega solo `DATABASE_URL` y las demás variables de Postgres.
+2. **Variables de entorno** (Settings → Environment Variables, entorno Production):
    - `SMTP_USER`, `SMTP_PASS` (contraseña de aplicación de Google Workspace), opcional `SMTP_FROM`, `SMTP_FROM_NAME`
-   - `APP_KEY` (cadena larga aleatoria), opcional `ANTHROPIC_API_KEY`
-4. Deploy y entrar a `/admin/setup`. (Sin variables de base, el sitio público igual se ve en **modo vista previa**: formularios y admin muestran un aviso hasta conectar la base.)
-5. Dominio: en Vercel → Domains agregar `nuevo.nifty-agency.com` (CNAME a `cname.vercel-dns.com`) y, cuando esté aprobado, `nifty-agency.com`.
+   - `APP_KEY` (cadena larga aleatoria), opcional `BASE_URL` y `ANTHROPIC_API_KEY`
+3. **Redeploy** y entrar a `/admin/setup` (crea las tablas, carga los casos y el primer administrador).
+4. Dominio: en Vercel → Domains agregar `nifty-agency.com` cuando esté listo para reemplazar el WordPress.
 
-En Vercel las sesiones y las fotos subidas desde el admin se guardan en la base (tablas `sessions` y `media`); las fotos tienen un límite de 4 MB cada una.
+Sin base conectada, el sitio público igual se ve en **modo vista previa**: formularios y admin muestran un aviso hasta conectarla. Las sesiones y las fotos subidas desde el admin se guardan en la base (tablas `sessions` y `media`); límite de 4 MB por foto.
+
+El código también funciona con MySQL (`DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS`) o con `config.php` en un hosting PHP tradicional.
 
 ## Instalación en hosting PHP tradicional (alternativa)
 

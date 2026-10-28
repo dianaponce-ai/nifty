@@ -1,15 +1,17 @@
 <?php
 /**
- * Esquema de base de datos. Funciona en MySQL (producción) y SQLite (pruebas locales).
+ * Esquema de base de datos. Funciona en PostgreSQL (Vercel / Neon), MySQL y SQLite (vista previa).
  * Se ejecuta desde /admin/setup o con: php app/cli.php migrate
  */
 
 function schema_statements(string $driver): array {
     $my = $driver === 'mysql';
-    $PK   = $my ? 'INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY' : 'INTEGER PRIMARY KEY AUTOINCREMENT';
+    $pg = $driver === 'pgsql';
+    $PK   = $my ? 'INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY' : ($pg ? 'SERIAL PRIMARY KEY' : 'INTEGER PRIMARY KEY AUTOINCREMENT');
     $LONG = $my ? 'LONGTEXT' : 'TEXT';
     $INT  = $my ? 'INT UNSIGNED' : 'INTEGER';
     $END  = $my ? ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci' : '';
+    $IDX  = $my ? 'CREATE INDEX' : 'CREATE INDEX IF NOT EXISTS';
 
     return [
         "CREATE TABLE IF NOT EXISTS users (
@@ -19,8 +21,8 @@ function schema_statements(string $driver): array {
             password_hash VARCHAR(255) NOT NULL,
             role VARCHAR(20) NOT NULL DEFAULT 'equipo',
             client_id $INT NULL,
-            last_login DATETIME NULL,
-            created_at DATETIME NOT NULL
+            last_login " . ($pg ? 'TIMESTAMP' : 'DATETIME') . " NULL,
+            created_at " . ($pg ? 'TIMESTAMP' : 'DATETIME') . " NOT NULL
         )$END",
 
         "CREATE TABLE IF NOT EXISTS settings (
@@ -45,12 +47,12 @@ function schema_statements(string $driver): array {
             assigned_to $INT NULL,
             ip VARCHAR(64) NOT NULL DEFAULT '',
             source VARCHAR(255) NOT NULL DEFAULT '',
-            created_at DATETIME NOT NULL,
-            updated_at DATETIME NOT NULL
+            created_at " . ($pg ? 'TIMESTAMP' : 'DATETIME') . " NOT NULL,
+            updated_at " . ($pg ? 'TIMESTAMP' : 'DATETIME') . " NOT NULL
         )$END",
-        "CREATE INDEX idx_leads_type ON leads (type)",
-        "CREATE INDEX idx_leads_status ON leads (status)",
-        "CREATE INDEX idx_leads_created ON leads (created_at)",
+        "$IDX idx_leads_type ON leads (type)",
+        "$IDX idx_leads_status ON leads (status)",
+        "$IDX idx_leads_created ON leads (created_at)",
 
         "CREATE TABLE IF NOT EXISTS lead_events (
             id $PK,
@@ -58,9 +60,9 @@ function schema_statements(string $driver): array {
             user_id $INT NULL,
             kind VARCHAR(30) NOT NULL,
             body $LONG NULL,
-            created_at DATETIME NOT NULL
+            created_at " . ($pg ? 'TIMESTAMP' : 'DATETIME') . " NOT NULL
         )$END",
-        "CREATE INDEX idx_events_lead ON lead_events (lead_id)",
+        "$IDX idx_events_lead ON lead_events (lead_id)",
 
         "CREATE TABLE IF NOT EXISTS cases (
             id $PK,
@@ -90,8 +92,8 @@ function schema_statements(string $driver): array {
             site_url VARCHAR(255) NOT NULL DEFAULT '',
             published $INT NOT NULL DEFAULT 1,
             sort $INT NOT NULL DEFAULT 0,
-            created_at DATETIME NOT NULL,
-            updated_at DATETIME NOT NULL
+            created_at " . ($pg ? 'TIMESTAMP' : 'DATETIME') . " NOT NULL,
+            updated_at " . ($pg ? 'TIMESTAMP' : 'DATETIME') . " NOT NULL
         )$END",
 
         "CREATE TABLE IF NOT EXISTS reviews (
@@ -104,7 +106,7 @@ function schema_statements(string $driver): array {
             case_id $INT NULL,
             featured $INT NOT NULL DEFAULT 1,
             sort $INT NOT NULL DEFAULT 0,
-            created_at DATETIME NOT NULL
+            created_at " . ($pg ? 'TIMESTAMP' : 'DATETIME') . " NOT NULL
         )$END",
 
         "CREATE TABLE IF NOT EXISTS sessions (
@@ -118,8 +120,8 @@ function schema_statements(string $driver): array {
             name VARCHAR(160) NOT NULL,
             mime VARCHAR(60) NOT NULL,
             size $INT NOT NULL DEFAULT 0,
-            data " . ($my ? 'LONGBLOB' : 'BLOB') . " NOT NULL,
-            created_at DATETIME NOT NULL
+            data $LONG NOT NULL,
+            created_at " . ($pg ? 'TIMESTAMP' : 'DATETIME') . " NOT NULL
         )$END",
 
         "CREATE TABLE IF NOT EXISTS mail_log (
@@ -129,7 +131,7 @@ function schema_statements(string $driver): array {
             subject VARCHAR(255) NOT NULL,
             ok $INT NOT NULL DEFAULT 0,
             error TEXT NULL,
-            created_at DATETIME NOT NULL
+            created_at " . ($pg ? 'TIMESTAMP' : 'DATETIME') . " NOT NULL
         )$END",
     ];
 }
