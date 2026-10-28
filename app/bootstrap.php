@@ -182,7 +182,15 @@ function team_emails(): array {
 class DbSessionHandler implements SessionHandlerInterface {
     public function open($path, $name): bool { return true; }
     public function close(): bool { return true; }
-    public function read($id): string|false { return (string) (val('SELECT data FROM sessions WHERE id = ?', [$id]) ?: ''); }
+    public function read($id): string|false {
+        try {
+            return (string) (val('SELECT data FROM sessions WHERE id = ?', [$id]) ?: '');
+        } catch (Throwable $e) {
+            // Base recién conectada (primer /admin/setup): todavía no hay tablas. Se crean y se sigue.
+            migrate();
+            return '';
+        }
+    }
     public function write($id, $data): bool {
         q('DELETE FROM sessions WHERE id = ?', [$id]);
         q('INSERT INTO sessions (id, data, updated_at) VALUES (?, ?, ?)', [$id, $data, time()]);
