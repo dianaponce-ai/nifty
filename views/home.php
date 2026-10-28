@@ -89,6 +89,7 @@ $channels = [['target', 'Google Ads'], ['megaphone', 'Meta Ads'], ['linkedin', '
 <!-- ======================= NUEVA ERA: IA ======================= -->
 <section class="wrap section">
   <div class="ai-era reveal">
+    <div class="ai-era-bg" aria-hidden="true"><img src="https://nifty-agency.com/wp-content/uploads/2026/09/DSC09175-scaled.jpg" alt="" loading="lazy"></div>
     <div class="ai-era-text">
       <span class="eyebrow">La búsqueda cambió</span>
       <h2>Tus clientes ya no solo googlean: <em>le preguntan a la IA.</em></h2>
