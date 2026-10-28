@@ -8,7 +8,13 @@ declare(strict_types=1);
 define('ROOT', dirname(__DIR__));
 define('APP', __DIR__);
 
-define('ON_VERCEL', (bool) getenv('VERCEL'));
+/** Lee una variable de entorno por cualquiera de las vías que usa el runtime (getenv, $_ENV, $_SERVER). */
+function env_var(string $k): string {
+    $v = getenv($k);
+    if ($v === false || $v === '') $v = $_ENV[$k] ?? $_SERVER[$k] ?? '';
+    return trim((string) $v);
+}
+define('ON_VERCEL', env_var('VERCEL') !== '' || env_var('VERCEL_ENV') !== '');
 
 /**
  * Configuración: config.php (hosting tradicional) o variables de entorno (Vercel).
@@ -19,8 +25,8 @@ define('ON_VERCEL', (bool) getenv('VERCEL'));
 $cfgFile = ROOT . '/config.php';
 if (is_file($cfgFile)) {
     $GLOBALS['CFG'] = require $cfgFile;
-} elseif (getenv('DB_HOST') || getenv('DB_DSN')) {
-    $env = fn(string $k, $d = '') => ($v = getenv($k)) !== false && $v !== '' ? $v : $d;
+} elseif (env_var('DB_HOST') !== '' || env_var('DB_DSN') !== '') {
+    $env = fn(string $k, $d = '') => ($v = env_var($k)) !== '' ? $v : $d;
     $GLOBALS['CFG'] = [
         'base_url' => $env('BASE_URL', 'https://' . $env('VERCEL_PROJECT_PRODUCTION_URL', $env('VERCEL_URL', 'localhost'))),
         'db' => [
@@ -39,7 +45,8 @@ if (is_file($cfgFile)) {
     ];
 } else {
     http_response_code(500);
-    exit('Falta la configuración: creá config.php (ver config.sample.php) o cargá las variables de entorno.');
+    $seen = array_values(array_filter(['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASS', 'BASE_URL', 'SMTP_USER', 'VERCEL'], fn($k) => env_var($k) !== ''));
+    exit('Falta la configuración: creá config.php (ver config.sample.php) o cargá las variables de entorno. Variables detectadas: ' . ($seen ? implode(', ', $seen) : 'ninguna') . '.');
 }
 
 function cfg(string $key, $default = null) {
@@ -147,7 +154,7 @@ class DbSessionHandler implements SessionHandlerInterface {
 
 function start_session(): void {
     if (session_status() === PHP_SESSION_ACTIVE) return;
-    if (ON_VERCEL || getenv('SESSION_DB') === '1') {
+    if (ON_VERCEL || env_var('SESSION_DB') === '1') {
         try { session_set_save_handler(new DbSessionHandler(), true); } catch (Throwable $e) {}
         ini_set('session.gc_maxlifetime', '86400');
     }
