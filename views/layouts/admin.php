@@ -11,7 +11,7 @@ $fl = flash();
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/admin.css?v=1">
+<link rel="stylesheet" href="<?= asset('assets/css/admin.css') ?>">
 </head>
 <body class="adm">
 <aside class="adm-side" id="admSide">
@@ -46,6 +46,6 @@ $fl = flash();
   <?php if ($fl): ?><div class="adm-flash <?= e($fl[0]) ?>"><?= e($fl[1]) ?></div><?php endif; ?>
   <div class="adm-content"><?= $content ?></div>
 </div>
-<script src="/assets/js/admin.js?v=1" defer></script>
+<script src="<?= asset('assets/js/admin.js') ?>" defer></script>
 </body>
 </html>

@@ -289,3 +289,9 @@ function lead_statuses(): array {
         'perdido'    => 'Perdido',
     ];
 }
+
+/** URL de un archivo estático con versión automática (evita que el navegador use CSS/JS viejo). */
+function asset(string $path): string {
+    $f = ROOT . '/' . ltrim($path, '/');
+    return '/' . ltrim($path, '/') . '?v=' . (is_file($f) ? substr(md5_file($f), 0, 8) : '1');
+}

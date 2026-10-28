@@ -33,8 +33,8 @@ $gtm = setting('gtm_id');
 <link rel="apple-touch-icon" href="https://nifty-agency.com/wp-content/uploads/2025/10/cropped-Favicon-Nifty-180x180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,700;1,800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/site.css?v=1">
-<?php foreach ((array) $meta['css'] as $css): ?><link rel="stylesheet" href="/assets/css/<?= e($css) ?>.css?v=1"><?php endforeach; ?>
+<link rel="stylesheet" href="<?= asset('assets/css/site.css') ?>">
+<?php foreach ((array) $meta['css'] as $css): ?><link rel="stylesheet" href="<?= asset('assets/css/' . $css . '.css') ?>"><?php endforeach; ?>
 <script type="application/ld+json"><?= jenc([
     '@context' => 'https://schema.org',
     '@graph' => [
@@ -153,6 +153,6 @@ $gtm = setting('gtm_id');
 </a>
 <?php endif; ?>
 
-<script src="/assets/js/site.js?v=1" defer></script>
+<script src="<?= asset('assets/js/site.js') ?>" defer></script>
 </body>
 </html>

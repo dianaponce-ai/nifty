@@ -5,7 +5,7 @@
     "api/index.php": {
       "runtime": "vercel-php@0.7.3",
       "maxDuration": 60,
-      "includeFiles": "{app/**,views/**,index.php}"
+      "includeFiles": "{app/**,views/**,assets/css/**,assets/js/**,index.php}"
     }
   },
   "routes": [
