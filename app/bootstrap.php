@@ -51,7 +51,8 @@ if (is_file($cfgFile)) {
     $env = fn(string $k, $d = '') => ($v = env_var($k)) !== '' ? $v : $d;
     $pgDb = pg_dsn(pg_url());
     $GLOBALS['CFG'] = [
-        'base_url' => $env('BASE_URL', 'https://' . $env('VERCEL_PROJECT_PRODUCTION_URL', $env('VERCEL_URL', 'localhost'))),
+        // Dirección pública: BASE_URL si está cargada; si no, el dominio con el que entró la visita
+        'base_url' => $env('BASE_URL', ((($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'http') ? 'http' : 'https') . '://' . ($_SERVER['HTTP_X_FORWARDED_HOST'] ?? $_SERVER['HTTP_HOST'] ?? $env('VERCEL_PROJECT_PRODUCTION_URL', 'localhost'))),
         'db' => $pgDb ?: [
             'dsn'  => $env('DB_DSN', 'mysql:host=' . $env('DB_HOST') . ';port=' . $env('DB_PORT', '3306') . ';dbname=' . $env('DB_NAME') . ';charset=utf8mb4'),
             'user' => $env('DB_USER'),
