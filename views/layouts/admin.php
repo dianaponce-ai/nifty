@@ -47,5 +47,6 @@ $fl = flash();
   <div class="adm-content"><?= $content ?></div>
 </div>
 <script src="<?= asset('assets/js/admin.js') ?>" defer></script>
+<script src="<?= asset('assets/js/password-toggle.js') ?>" defer></script>
 </body>
 </html>

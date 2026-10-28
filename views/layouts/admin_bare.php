@@ -12,5 +12,6 @@
   <img src="<?= e(logo_url()) ?>" alt="Nifty Agency" class="auth-logo">
   <?= $content ?>
 </div>
+<script src="<?= asset('assets/js/password-toggle.js') ?>" defer></script>
 </body>
 </html>

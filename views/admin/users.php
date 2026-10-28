@@ -6,9 +6,9 @@
       <tbody><?php foreach ($users as $u): ?>
         <tr><td><b><?= e($u['name']) ?></b></td><td><?= e($u['email']) ?></td><td><span class="pill"><?= e($u['role']) ?></span></td>
           <td class="small muted"><?= $u['last_login'] ? e(date('d/m/Y H:i', strtotime($u['last_login']))) : '—' ?></td>
-          <td class="nowrap">
-            <form method="post" class="inline-form"><?= csrf_field() ?><input type="hidden" name="act" value="password"><input type="hidden" name="id" value="<?= (int) $u['id'] ?>"><input type="password" name="password" placeholder="Nueva contraseña" minlength="10" required><button class="abtn sm">Cambiar</button></form>
-            <?php if ((int) $u['id'] !== (int) $me['id']): ?><form method="post" class="inline-form" onsubmit="return confirm('¿Eliminar usuario?')"><?= csrf_field() ?><input type="hidden" name="act" value="delete"><input type="hidden" name="id" value="<?= (int) $u['id'] ?>"><button class="abtn danger sm">×</button></form><?php endif; ?>
+          <td class="nowrap"><?php if ((int) $u['id'] !== (int) $me['id']): ?><form method="post" class="inline-form" onsubmit="return confirm('¿Eliminar usuario?')"><?= csrf_field() ?><input type="hidden" name="act" value="delete"><input type="hidden" name="id" value="<?= (int) $u['id'] ?>"><button class="abtn danger sm" title="Eliminar usuario">×</button></form><?php endif; ?></td></tr>
+        <tr class="user-pw-row"><td colspan="5">
+            <form method="post" class="inline-form"><?= csrf_field() ?><input type="hidden" name="act" value="password"><input type="hidden" name="id" value="<?= (int) $u['id'] ?>"><input type="password" name="password" placeholder="Nueva contraseña (mín. 10)" minlength="10" required autocomplete="new-password"><button class="abtn sm">Cambiar contraseña</button></form>
           </td></tr>
       <?php endforeach; ?></tbody></table></div>
   </section>

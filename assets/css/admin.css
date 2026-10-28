@@ -178,3 +178,17 @@ code{font-family:'JetBrains Mono',monospace;font-size:12px;background:#f1ecf8;pa
 .adlg{border:0;border-radius:18px;padding:26px;max-width:480px;width:92%;box-shadow:0 30px 80px rgba(0,0,0,.35)}
 .adlg::backdrop{background:rgba(10,1,24,.55)}
 .row-actions form{display:inline}
+
+/* Ojito para mostrar/ocultar contraseñas */
+.pw-wrap{position:relative;display:block;margin-top:6px}
+.pw-wrap input{margin-top:0!important;padding-right:42px!important}
+.inline-form .pw-wrap{display:inline-block;margin-top:0}
+.pw-toggle{position:absolute;top:50%;right:6px;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;border:0;border-radius:8px;background:transparent;color:var(--mut);cursor:pointer}
+.pw-toggle:hover{color:var(--vi);background:#f3eefb}
+.pw-toggle:focus-visible{outline:2px solid rgba(124,58,237,.45)}
+.inline-form .pw-toggle{width:28px;height:28px;right:3px}
+.atable tr:has(+ .user-pw-row) td{border-bottom:0;padding-bottom:4px}
+.atable .user-pw-row td{padding-top:0}
+.atable .user-pw-row:hover{background:transparent}
+.user-pw-row .inline-form input{width:220px}
+@media(max-width:520px){.user-pw-row .inline-form{flex-wrap:wrap}.user-pw-row .inline-form .pw-wrap,.user-pw-row .inline-form input{width:100%}}
